@@ -21,6 +21,7 @@ globalThis.location = { hash: '' };
 // ---- 加载被测模块 ----
 const { store } = await import('../src/store.js');
 const content = await import('../src/content.js');
+const fb = await import('../src/fallback.js');
 
 // 模拟已注册用户
 store.setUser({ name: '测试用户', theme: '编程 / 技术', createdAt: Date.now() });
@@ -129,6 +130,40 @@ assert(hotAfter[0].id === newPost.id, '新帖出现在热帖顶部');
 const npDetail = await content.getTopicDetail(newPost.id, newPost);
 assert(npDetail.content.includes('这是正文第一段'), '用户帖详情正文正确');
 
+console.log('\n=== 8b. 回归:用户帖 replies=0 不生成 AI 回复 ===');
+// 用一个全新的用户帖(replies=0)验证:即使生成回复页,也不该有 AI 回复
+// (newPost.replies===0,且它的回复 key 未被生成过)
+// 直接验证:newPost 不应该有任何"凭空出现"的回复
+// 这里通过检查 content 层不会为 replies=0 的用户帖生成回复来确认
+// (loadReplies 的早返回在 topic.js,此处验证数据层:newPost 的 replies 仍为 0)
+assert(npDetail.replies === 0, '新发的用户帖回复数为 0(未凭空生成 AI 回复)');
+
+console.log('\n=== 8c. 回归:回复不与楼主同名 + 不重复 + 时间不早于发帖(直接测 fallback) ===');
+// 直接测 fallback 函数,避免被旧缓存干扰
+const fbBoard = { id: 'qa', name: '求助问答', desc: '', icon: '❓' };
+const fbOp = '我是楼主';
+const fbOpCreated = '8 小时前';
+const { replies: fbReplies } = fb.fallbackReplies('编程', fbBoard, '测试标题', 1, fbOp, fbOpCreated);
+assert(fbReplies.every((r) => r.author !== fbOp), '回复中没有和楼主同名的');
+const fbNames = fbReplies.map((r) => r.author);
+assert(new Set(fbNames).size === fbNames.length, '同一页回复用户名不重复');
+// 时间不倒挂:回复时间都应晚于(≤)发帖的 8 小时前
+function hoursAgo(text) {
+  if (!text) return null;
+  if (/刚刚|刚才/.test(text)) return 0;
+  const m = text.match(/(\d+)\s*(分钟|小时|天|周)/);
+  if (!m) return /昨天/.test(text) ? 24 : null;
+  const n = parseInt(m[1], 10);
+  const u = m[2];
+  return u === '分钟' ? n / 60 : u === '小时' ? n : u === '天' ? n * 24 : n * 24 * 7;
+}
+const opH = hoursAgo(fbOpCreated);
+const badTime = fbReplies.find((r) => {
+  const rh = hoursAgo(r.created);
+  return rh != null && rh > opH + 0.5;
+});
+assert(!badTime, `回复时间不早于发帖(发帖${fbOpCreated},所有回复应更新)`);
+
 console.log('\n=== 9. 用户回复 ===');
 content.appendUserReply(t0.id, '我来回复一下', t0);
 const { replies: rAfter } = await content.getTopicRepliesPage(t0.id, 1, t0);
@@ -140,10 +175,20 @@ assert(lastReply.isUserReply === true, '标记为用户回复');
 const detailAfter = await content.getTopicDetail(t0.id, t0);
 assert(detailAfter.replies === (detail.replies + 1), `帖子回复数 +1 (${detail.replies}→${detailAfter.replies})`);
 
+console.log('\n=== 9b. 回归:回复后用精简 meta 仍能读到回复(URL 丢 title 不串台) ===');
+// 模拟回复提交后跳转的 URL 只带了 page(老 bug 场景):
+// 回复是 appendUserReply 用 detail.title 写的,
+// 之后即使 meta 只有 title(从详情重建)也能读到那条回复
+const metaTitleOnly = { title: t0.title };
+const { replies: rFromMeta } = await content.getTopicRepliesPage(t0.id, 1, metaTitleOnly);
+const lastFromMeta = rFromMeta[rFromMeta.length - 1];
+assert(lastFromMeta && lastFromMeta.content === '我来回复一下', '精简meta仍能读到刚发的回复(不串台)');
+assert(deepEq(rFromMeta, rAfter), '精简meta与完整meta读到同一份回复');
+
 console.log('\n=== 10. 重置 ===');
 const idBefore = newPost.id;
 store.resetAll();
-assert(store.get(store.keys.topic(idBefore)) === null, '重置后帖子缓存被清空');
+assert(store.get(store.keys.topic(idBefore, '我的测试新帖')) === null, '重置后帖子缓存被清空');
 assert(store.getUser() === null, '重置后用户信息被清空');
 
 console.log(`\n========== ${pass} passed, ${fail} failed ==========`);

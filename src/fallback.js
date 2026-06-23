@@ -226,20 +226,64 @@ export function fallbackTopicDetail(theme, board, titleHint) {
 }
 
 // ---- 帖子回复 ----
-export function fallbackReplies(theme, board, titleHint, page) {
+// opAuthor: 楼主名,回复里排除它(避免"楼主自己回复自己"的穿帮)
+// opCreated: 楼主发帖的相对时间文案,回复时间应晚于它(避免时间倒挂)
+export function fallbackReplies(theme, board, titleHint, page, opAuthor, opCreated) {
   const rng = mulberry32(seedFrom(`replies:${board.id}:${titleHint}:p${page}:${theme}`));
   const count = 10;
   const replies = [];
+  // 把楼主发帖时间解析成"小时数"下界,回复时间应 ≤ 这个值(更近)
+  const opHours = parseHoursAgo(opCreated);
+  // 已用过的用户名集合(含楼主),避免回复间用户名重复
+  const usedNames = new Set(opAuthor ? [opAuthor] : []);
   for (let i = 0; i < count; i++) {
     const tpl = pick(rng, REPLIES);
+    let author = userFor(rng);
+    // 重试避免和楼主或前面的回复撞名(词库小,尽力去重)
+    let guard = 0;
+    while (usedNames.has(author) && guard++ < 8) author = userFor(rng);
+    usedNames.add(author);
     replies.push({
-      author: userFor(rng),
+      author,
       avatar: avatarFor(rng),
       content: fillTemplate(tpl, rng),
-      created: relTime(rng),
+      created: replyTimeAfter(rng, opHours, i),
     });
   }
   return { replies };
+}
+
+// 从相对时间文案(如"3 小时前""昨天""2 天前")估算小时数,抽不到返回 null
+function parseHoursAgo(text) {
+  if (!text) return null;
+  const m = text.match(/(\d+)\s*(分钟|小时|天|周)/);
+  if (!m) {
+    if (/刚刚|刚才/.test(text)) return 0;
+    if (/昨天/.test(text)) return 24;
+    return null;
+  }
+  const n = parseInt(m[1], 10);
+  const unit = m[2];
+  if (unit === '分钟') return n / 60;
+  if (unit === '小时') return n;
+  if (unit === '天') return n * 24;
+  if (unit === '周') return n * 24 * 7;
+  return null;
+}
+
+// 生成一条比楼主发帖更近(更晚)的回复时间,楼层越靠后越近"现在"
+function replyTimeAfter(rng, opHours, floorOffset) {
+  // 若无法解析楼主时间,退回到通用相对时间
+  if (opHours == null) return relTime(rng);
+  // 回复时间分布在 [0, opHours] 小时前,楼层越靠后越接近现在
+  // floorOffset 让靠后的楼层时间更近,基本单调
+  const base = opHours * (1 - (floorOffset + 1) / 20);
+  const jitter = (rng() - 0.5) * opHours * 0.15;
+  let h = Math.max(0, base + jitter);
+  if (h < 1 / 60) return '刚刚';
+  if (h < 1) return `${Math.max(1, Math.round(h * 60))} 分钟前`;
+  if (h < 24) return `${Math.round(h)} 小时前`;
+  return `${Math.round(h / 24)} 天前`;
 }
 
 // ---- 搜索 ----

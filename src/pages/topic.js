@@ -59,12 +59,12 @@ function parseMeta(query) {
 async function loadReplies(topicId, page, detail) {
   const container = document.getElementById('topic-replies');
   const totalReplies = detail.replies || 0;
-  // 如果该帖没有回复,显示空状态
-  if (totalReplies === 0 && page === 1) {
-    // 仍尝试拉取一页(用户发的新帖 replies=0 除外)
-    if (!detail.isUserPost) {
-      container.innerHTML = ui.loadingBlock('正在加载回复…');
-    }
+
+  // 用户刚发的帖(自己发的,还没有任何回复):绝不生成 AI 回复,
+  // 直接显示空状态等真实回复。否则会出现"一发帖就一堆回复"的穿帮。
+  if (detail.isUserPost && totalReplies === 0 && page === 1) {
+    container.innerHTML = renderEmptyReplies(topicId, detail);
+    return;
   }
 
   try {
@@ -109,6 +109,11 @@ function renderDetail(d) {
         <span class="action-chip">👁 ${ui.fmtNum(Math.max(d.replies * 8, 50))}</span>
       </div>
     </div>`;
+}
+
+// 空回复状态(用户帖暂无回复时):只显示提示 + 回复框,绝不生成 AI 回复
+function renderEmptyReplies(topicId, detail) {
+  return renderReplies([], 0, 1, topicId, detail);
 }
 
 function renderReplies(replies, totalReplies, page, topicId, detail) {
@@ -166,8 +171,9 @@ function bindReplyBox(topicId, detail) {
     }
     appendUserReply(topicId, text, detail);
     ui.toast('回复成功', 'success');
-    // 跳回第 1 页查看新回复
-    location.hash = `#/topic/${encodeURIComponent(topicId)}?page=1`;
+    // 跳回第 1 页查看新回复。必须带上完整 meta(title 等),
+    // 否则 URL 缺 title → 缓存 key 不一致 → 刚发的回复查不到
+    location.hash = pagerLink(topicId, detail, 1);
   });
 }
 

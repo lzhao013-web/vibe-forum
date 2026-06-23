@@ -200,12 +200,21 @@ export async function getTopicRepliesPage(topicId, page, topicMeta) {
     const title = topicMeta?.title || '帖子';
     const floorStart = (page - 1) * REPLIES_PER_PAGE + 2;
     const r = await tryLLM(
-      (u) => prompts.topicReplies(u.theme, board, title, page, floorStart),
+      (u) => prompts.topicReplies(u.theme, board, title, page, floorStart, topicMeta?.author, topicMeta?.created),
       (data) => {
+        const opAuthor = topicMeta?.author;
+        const seen = new Set(opAuthor ? [opAuthor] : []);
         const replies = arr(data.replies)
           .filter(isObj)
           .map((rr) => pick(rr, ['author', 'avatar', 'content', 'created'], { avatar: '🙂', created: '不久前' }))
-          .filter((rr) => rr.content);
+          .filter((rr) => rr.content)
+          // 防御:排除和楼主同名的回复(楼主的回复是 1 楼)
+          // 且页内用户名去重(同名只保留第一条)
+          .filter((rr) => {
+            if (seen.has(rr.author)) return false;
+            seen.add(rr.author);
+            return true;
+          });
         if (!replies.length) return null;
         replies.forEach((rr, i) => {
           rr.floor = (page - 1) * REPLIES_PER_PAGE + i + 2;
@@ -215,7 +224,7 @@ export async function getTopicRepliesPage(topicId, page, topicMeta) {
       '回复'
     );
     if (r.__fallback) {
-      const { replies } = fb.fallbackReplies(user.theme, board, title, page);
+      const { replies } = fb.fallbackReplies(user.theme, board, title, page, topicMeta?.author, topicMeta?.created);
       replies.forEach((rr, i) => {
         rr.floor = (page - 1) * REPLIES_PER_PAGE + i + 2;
       });

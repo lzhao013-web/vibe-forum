@@ -134,21 +134,22 @@ function topicDetail(theme, board, titleHint) {
 
 // ---- 生成回复楼层(某帖某页) ----
 // 输出: { replies: [{ author, avatar, content, created }] }
-function topicReplies(theme, board, topicTitle, page, floorStart) {
+function topicReplies(theme, board, topicTitle, page, floorStart, opAuthor, opCreated) {
   return [
     { role: 'system', content: SYSTEM_PROMPT },
     {
       role: 'user',
       content: `${themeLine(theme)}
 
-帖子标题: "${topicTitle}",位于【${board.name}】板块。
+帖子标题: "${topicTitle}",位于【${board.name}】板块,楼主是 "${opAuthor || '匿名'}",发帖于 ${opCreated || '不久前'}。
 这是该帖回复的第 ${page} 页(楼层从第 ${floorStart} 楼开始),请生成 10 条回复。
 
 要求:
 - 回复风格多样:有人赞同、有人反驳、有人补充、有人抖机灵、有人跑题、有人 @ 楼主。
 - 不同楼层语气、长度都不同,部分回复可简短(一句话),少数较长。
 - author 各不相同,都是虚拟用户名,带 emoji 头像。
-- created 是相对时间,楼层越靠后时间越近(页内有序)。
+- 【重要】回复的 author 绝对不能和楼主 "${opAuthor || '匿名'}" 相同(楼主的回复是 1 楼,不是普通楼层)。
+- 【重要】created 是相对时间,必须晚于楼主的发帖时间(楼主的帖子是 ${opCreated || '不久前'} 发的,回复应该更接近现在),楼层越靠后时间越近。
 - 不要回复"我是 AI"之类的破绽。
 
 输出 JSON:
