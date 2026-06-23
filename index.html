@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vibe Forum · 自由交流社区</title>
+  <meta name="description" content="一个自由开放的技术与生活交流社区,在这里分享你的见闻、提出你的问题、认识志同道合的朋友。" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%AC%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/styles/main.css" />
+</head>
+<body>
+  <!-- 全局顶栏:由各页面渲染(注册页除外) -->
+  <header id="app-header" class="app-header hidden"></header>
+
+  <!-- 路由挂载点 -->
+  <main id="app" class="app-container"></main>
+
+  <!-- 全局 toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script type="module" src="/src/app.js"></script>
+</body>
+</html>

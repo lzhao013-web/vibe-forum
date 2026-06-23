@@ -1,0 +1,450 @@
+/* ===== Vibe Forum · main.css =====
+   风格:V2EX/Reddit 现代卡片风。浅灰背景、白色卡片、主色点缀。
+*/
+
+/* ---- 基础重置 ---- */
+*, *::before, *::after { box-sizing: border-box; }
+:root {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --border: #e6e6ea;
+  --text: #1c1c1e;
+  --text-soft: #6b6b70;
+  --text-mute: #9a9aa0;
+  --primary: #4a6cf7;
+  --primary-soft: #eef1ff;
+  --primary-hover: #3a59e0;
+  --danger: #e5484d;
+  --success: #2f9e44;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-hover: 0 4px 12px rgba(0,0,0,.08);
+  --maxw: 1080px;
+  --header-h: 56px;
+}
+html, body {
+  margin: 0; padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+img { max-width: 100%; }
+.hidden { display: none !important; }
+.muted { color: var(--text-mute); font-size: 13px; }
+
+/* ---- 顶栏 ---- */
+.app-header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: saturate(180%) blur(12px);
+  border-bottom: 1px solid var(--border);
+  height: var(--header-h);
+}
+.header-inner {
+  max-width: var(--maxw);
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.header-logo {
+  display: flex; align-items: center; gap: 6px;
+  font-weight: 700; font-size: 17px; color: var(--text);
+}
+.header-logo:hover { text-decoration: none; }
+.logo-emoji { font-size: 20px; }
+.header-search {
+  flex: 1; max-width: 480px;
+  display: flex; align-items: center;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 14px;
+  gap: 8px;
+  transition: border-color .15s, background .15s;
+}
+.header-search:focus-within { border-color: var(--primary); background: #fff; }
+.header-search input {
+  flex: 1; border: 0; background: transparent; outline: none;
+  font-size: 14px; color: var(--text);
+}
+.header-search button {
+  border: 0; background: transparent; cursor: pointer; font-size: 15px; padding: 0;
+}
+.header-user {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--text-soft); font-size: 14px;
+}
+.user-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--primary-soft);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.user-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.header-reset {
+  border: 1px solid var(--border); background: #fff; cursor: pointer;
+  width: 28px; height: 28px; border-radius: 50%; font-size: 14px; color: var(--text-soft);
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.header-reset:hover { color: var(--danger); border-color: var(--danger); }
+
+/* ---- 主容器 ---- */
+.app-container {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 24px 20px 60px;
+  min-height: calc(100vh - var(--header-h));
+}
+
+/* ---- 卡片 / 区块 ---- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.section { padding: 18px 20px; margin-bottom: 18px; }
+.section-head {
+  display: flex; align-items: baseline; gap: 10px;
+  margin-bottom: 14px;
+}
+.section-head h2 { margin: 0; font-size: 17px; font-weight: 700; }
+.section-sub { color: var(--text-mute); font-size: 13px; }
+
+/* ---- 首页布局 ---- */
+.home-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 18px;
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .home-grid { grid-template-columns: 1fr; }
+}
+.welcome-card { text-align: center; }
+.welcome-emoji { font-size: 28px; margin-bottom: 6px; }
+.welcome-card p { margin: 4px 0; font-size: 14px; }
+.welcome-note { color: var(--text-mute); font-size: 12px; }
+
+/* ---- 帖子列表 ---- */
+.topic-list { display: flex; flex-direction: column; }
+.topic-item {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 12px 8px;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  transition: background .12s;
+  cursor: pointer;
+}
+.topic-item + .topic-item { border-top: 1px solid var(--border); }
+.topic-item:hover { background: var(--bg); text-decoration: none; }
+.topic-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--primary-soft);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.topic-main { flex: 1; min-width: 0; }
+.topic-title {
+  font-size: 15px; font-weight: 600; color: var(--text);
+  margin-bottom: 4px;
+  overflow: hidden; text-overflow: ellipsis;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+.topic-meta {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  color: var(--text-mute); font-size: 12px;
+  align-items: center;
+}
+.topic-meta .meta-board {
+  color: var(--primary); background: var(--primary-soft);
+  padding: 1px 8px; border-radius: 999px; font-size: 12px;
+}
+.topic-meta .meta-board:hover { background: var(--primary); color: #fff; text-decoration: none; }
+.meta-time { margin-left: auto; }
+
+/* ---- 板块网格 ---- */
+.board-grid { display: flex; flex-direction: column; gap: 8px; }
+.board-card {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 8px; border-radius: var(--radius-sm);
+  cursor: pointer; transition: background .12s;
+}
+.board-card:hover { background: var(--bg); }
+.board-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--primary-soft);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.board-info { flex: 1; min-width: 0; }
+.board-name { font-weight: 600; font-size: 14px; }
+.board-desc { color: var(--text-mute); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.board-count {
+  font-size: 12px; color: var(--text-mute); flex-shrink: 0;
+  background: var(--bg); padding: 2px 8px; border-radius: 999px;
+}
+
+/* ---- 注册页 ---- */
+.register-wrap {
+  min-height: calc(100vh - var(--header-h));
+  display: flex; align-items: center; justify-content: center;
+  padding: 40px 20px;
+}
+.register-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-hover);
+  padding: 36px;
+  max-width: 480px;
+  width: 100%;
+}
+.register-hero { text-align: center; margin-bottom: 28px; }
+.hero-emoji { font-size: 48px; }
+.register-hero h1 { margin: 8px 0 10px; font-size: 24px; }
+.hero-sub { color: var(--text-soft); font-size: 14px; margin: 0; line-height: 1.7; }
+.reg-field { margin-bottom: 22px; }
+.reg-field > label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+.reg-field input[type="text"] {
+  width: 100%; padding: 11px 14px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-size: 15px; outline: none; background: var(--bg);
+  transition: border-color .15s, background .15s;
+}
+.reg-field input[type="text"]:focus { border-color: var(--primary); background: #fff; }
+.theme-chips {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;
+}
+.theme-chip {
+  border: 1px solid var(--border); background: #fff;
+  padding: 7px 12px; border-radius: 999px; cursor: pointer;
+  font-size: 13px; color: var(--text-soft);
+  display: inline-flex; align-items: center; gap: 5px;
+  transition: all .12s;
+}
+.theme-chip:hover { border-color: var(--primary); color: var(--primary); }
+.theme-chip.selected {
+  background: var(--primary); border-color: var(--primary); color: #fff;
+}
+.chip-emoji { font-size: 15px; }
+.reg-error { color: var(--danger); font-size: 13px; min-height: 18px; margin-bottom: 8px; }
+.reg-note { color: var(--text-mute); font-size: 12px; text-align: center; margin: 18px 0 0; }
+
+/* ---- 按钮 ---- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border: 1px solid var(--border); background: #fff; color: var(--text);
+  padding: 9px 18px; border-radius: var(--radius-sm); cursor: pointer;
+  font-size: 14px; font-weight: 500;
+  transition: all .12s;
+}
+.btn:hover { background: var(--bg); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn-primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+.btn-block { width: 100%; padding: 12px; font-size: 15px; }
+
+/* ---- 骨架屏 ---- */
+.skeleton-list, .skeleton-grid { display: flex; flex-direction: column; }
+.sk-row {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 12px 8px;
+}
+.sk-row + .sk-row { border-top: 1px solid var(--border); }
+.sk-avatar { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; }
+.sk-content { flex: 1; }
+.sk-card { display: flex; gap: 12px; padding: 10px 8px; }
+.sk-icon { width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0; }
+.sk-card-body { flex: 1; padding-top: 4px; }
+.sk-line {
+  height: 12px; border-radius: 4px;
+  background: linear-gradient(90deg, #ececee 25%, #f4f4f6 37%, #ececee 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+  margin-bottom: 6px;
+}
+@keyframes shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+
+/* ---- 加载块 ---- */
+.loading-block {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 50px 20px; text-align: center; color: var(--text-soft);
+}
+.loading-spinner {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 3px solid var(--border); border-top-color: var(--primary);
+  animation: spin .8s linear infinite; margin-bottom: 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-block p { margin: 0; font-size: 14px; }
+.loading-hint { margin-top: 6px !important; font-size: 12px !important; color: var(--text-mute); }
+
+/* ---- 错误块 ---- */
+.error-block {
+  text-align: center; padding: 30px 20px; color: var(--text-soft);
+}
+.error-block p { margin: 0 0 14px; }
+
+/* ---- 空状态 ---- */
+.state-empty { text-align: center; padding: 60px 20px; color: var(--text-mute); }
+
+/* ---- Toast ---- */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: rgba(28,28,30,.92); color: #fff;
+  padding: 10px 18px; border-radius: 999px; font-size: 14px;
+  box-shadow: var(--shadow-hover); z-index: 1000;
+  animation: toastIn .2s ease;
+}
+.toast-success { background: rgba(47,158,68,.92); }
+.toast-error, .toast-info { }
+@keyframes toastIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+/* ---- 响应式 ---- */
+@media (max-width: 600px) {
+  .app-container { padding: 16px 12px 40px; }
+  .section { padding: 14px 14px; }
+  .register-card { padding: 26px 22px; }
+  .header-inner { gap: 10px; padding: 0 12px; }
+  .user-name { display: none; }
+  .logo-text { display: none; }
+}
+
+/* ---- 板块页头 ---- */
+.forum-head-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap;
+}
+.forum-title-wrap { display: flex; align-items: center; gap: 14px; }
+.forum-icon {
+  width: 52px; height: 52px; border-radius: 14px;
+  background: var(--primary-soft);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 28px; flex-shrink: 0;
+}
+.forum-title { margin: 0; font-size: 20px; font-weight: 700; }
+.forum-desc { margin: 2px 0 0; font-size: 13px; }
+
+/* ---- 置顶/我的 标签 ---- */
+.pin-tag {
+  display: inline-block; font-size: 11px; font-weight: 600;
+  padding: 1px 6px; border-radius: 4px; margin-right: 4px;
+  background: #fff3d6; color: #b7791f; vertical-align: middle;
+}
+.pin-mine { background: #e7f7ec; color: var(--success); }
+
+/* ---- 分页器 ---- */
+.pager { margin-top: 18px; display: flex; justify-content: center; }
+.pager-inner { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.pager-btn {
+  min-width: 36px; height: 34px; padding: 0 10px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); background: #fff;
+  border-radius: var(--radius-sm); color: var(--text-soft);
+  font-size: 13px; cursor: pointer; text-decoration: none;
+  transition: all .12s;
+}
+.pager-btn:hover { border-color: var(--primary); color: var(--primary); text-decoration: none; }
+.pager-current { background: var(--primary); border-color: var(--primary); color: #fff; cursor: default; }
+.pager-ellipsis { color: var(--text-mute); padding: 0 4px; }
+
+/* ---- 帖子详情页 ---- */
+.topic-detail-card { padding: 22px 24px; }
+.topic-detail-head { margin-bottom: 18px; }
+.back-link {
+  display: inline-block; font-size: 13px; color: var(--text-mute);
+  margin-bottom: 10px;
+}
+.back-link:hover { color: var(--primary); text-decoration: none; }
+.topic-detail-title {
+  margin: 0; font-size: 22px; font-weight: 700; line-height: 1.4;
+}
+.floor {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 0; border-top: 1px solid var(--border);
+}
+.floor-op { border-top: 1px solid var(--border); margin-top: 14px; }
+.floor-left { display: flex; align-items: center; gap: 10px; }
+.floor-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--primary-soft);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 20px;
+}
+.floor-avatar.small { width: 32px; height: 32px; font-size: 17px; }
+.floor-author { display: flex; flex-direction: column; }
+.floor-name { font-size: 14px; font-weight: 600; }
+.floor-time { font-size: 12px; color: var(--text-mute); }
+.floor-num { font-size: 12px; color: var(--text-mute); flex-shrink: 0; }
+.floor-content {
+  padding: 0 0 14px; font-size: 15px; line-height: 1.8; color: var(--text);
+  word-break: break-word;
+}
+.floor-content p { margin: 0 0 12px; }
+.floor-content p:last-child { margin-bottom: 0; }
+.floor-content-reply { padding-top: 0; }
+.topic-actions {
+  display: flex; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border);
+}
+.action-chip {
+  font-size: 13px; color: var(--text-soft);
+  padding: 4px 10px; border-radius: 999px; background: var(--bg);
+}
+.replies-head {
+  font-weight: 700; font-size: 15px; margin-bottom: 4px;
+}
+.empty-replies { text-align: center; padding: 30px 20px; }
+
+/* ---- 回复框 ---- */
+.reply-box { margin-top: 18px; }
+.reply-head { font-weight: 700; font-size: 15px; margin-bottom: 10px; }
+.reply-input {
+  width: 100%; resize: vertical;
+  padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-size: 14px; font-family: inherit; outline: none; background: var(--bg);
+  transition: border-color .15s, background .15s;
+}
+.reply-input:focus { border-color: var(--primary); background: #fff; }
+.reply-actions { display: flex; justify-content: flex-end; margin-top: 10px; }
+
+/* ---- 搜索页 ---- */
+.search-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.search-q { margin: 0 0 14px; color: var(--text-soft); font-size: 14px; }
+.search-q strong { color: var(--text); }
+.topic-snippet {
+  font-size: 13px; color: var(--text-soft); margin: 2px 0 6px;
+  overflow: hidden; text-overflow: ellipsis;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+
+/* ---- 发帖页 ---- */
+.newpost-card { max-width: 720px; margin: 0 auto; }
+.np-select {
+  width: 100%; padding: 11px 14px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-size: 15px; outline: none; background: var(--bg);
+  font-family: inherit;
+}
+.np-select:focus { border-color: var(--primary); background: #fff; }
+.np-content {
+  width: 100%; resize: vertical;
+  padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-size: 15px; line-height: 1.7; font-family: inherit; outline: none; background: var(--bg);
+  transition: border-color .15s, background .15s;
+}
+.np-content:focus { border-color: var(--primary); background: #fff; }
+

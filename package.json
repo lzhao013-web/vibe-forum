@@ -1,0 +1,13 @@
+{
+  "name": "vibe-forum",
+  "version": "1.0.0",
+  "description": "一个没有固定内容、全部由 LLM 即时生成的论坛",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node dev-server.mjs",
+    "start": "node dev-server.mjs",
+    "test": "node tests/router.test.mjs && node tests/e2e.test.mjs"
+  },
+  "license": "MIT"
+}
